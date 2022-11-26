@@ -6,10 +6,6 @@ import os
 app = Flask(__name__)
 app.secret_key = "^A%DJAJU^JJ123"
 app.config['SESSION_TYPE'] = 'filesystem'
-# app.config['MYSQL_HOST'] = 'us-cdbr-east-05.cleardb.net'
-# app.config['MYSQL_USER'] = 'b4d15f475727b4'
-# app.config['MYSQL_PASSWORD'] = '56774e90'
-# app.config['MYSQL_DB'] = 'heroku_375db579675edf4'
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'dung'
 app.config['MYSQL_PASSWORD'] = 'Dung@123'
@@ -182,12 +178,20 @@ def hardwaredetails():
     name = request.args.get('name')
     id_hardware = request.args.get('id_hardware')
     cur = mysql.connection.cursor()
-    cur.execute("SELECT hardware.name AS hardwarename, hardware_log.ph_level, hardware_log.temperature, hardware_log.humidity, hardware_log.water_level, hardware_log.image, hardware_log.time FROM hardware_log INNER JOIN hardware ON hardware_log.id_hardware = hardware.id_hardware WHERE hardware_log.id_hardware=%s", (id_hardware,))
+    cur.execute("SELECT hardware.name AS hardwarename, hardware_log.ph_level, \
+                 hardware_log.temperature, hardware_log.humidity, hardware_log.water_level, \
+                 hardware_log.image, hardware_log.time \
+                 FROM hardware_log \
+                 INNER JOIN hardware \
+                 ON hardware_log.id_hardware = hardware.id_hardware \
+                 WHERE hardware_log.id_hardware=%s", (id_hardware,))
     rv = cur.fetchall()
     cur.execute("SELECT * FROM hardware_log WHERE id_hardware=%s ORDER BY time desc LIMIT 10", (id_hardware,))
     rvchart = cur.fetchall()
     cur.close()
-    return render_template("detail-hardware.html", hardware_log=rv, hardware_chart=rvchart, hardwarename=name)
+
+    getLogDataApiUrl = 'http://127.0.0.1:5000/api/gethardwarelog/' + id_hardware
+    return render_template("detail-hardware.html", hardware_log=rv, hardware_chart=rvchart, hardwarename=name, getLogDataApiUrl=getLogDataApiUrl)
 
 @app.route('/addhardwarelog',methods=["POST"])
 def addhardwarelog():
@@ -229,6 +233,25 @@ def checkhardwarestatus(id_hardware):
         'data':rv[0]
     }
         ,201)
+
+# get latest 10 datas
+@app.route('/api/gethardwarelog/<string:id_hardware>', methods=["GET"])
+def gethardwarelog(id_hardware):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT ph_level, temperature, humidity, water_level, time \
+                 FROM hardware_log \
+                 WHERE id_hardware=%s \
+                 order by id_hardware_log desc \
+                 LIMIT 1", (id_hardware,))
+    data = cur.fetchall()
+    cur.close()
+    return make_response(
+    {
+        'message':'Status hardware successfully fetched', 'code':'SUCCESS',
+        'data':data
+    }
+        ,201)
+
 
 @app.errorhandler(404)
 def not_found(e):

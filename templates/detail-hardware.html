@@ -123,6 +123,7 @@ endblock %} {% block content %}
     });
   });
 </script>
+
 <script type="text/javascript">
   // Set new default font family and font color to mimic Bootstrap's default styling
   (Chart.defaults.global.defaultFontFamily = "Nunito"),
@@ -154,9 +155,28 @@ endblock %} {% block content %}
     return s.join(dec);
   }
 
+  setInterval(() => {
+      fetch('{{ getLogDataApiUrl }}')
+      .then(function (response){
+        return response.json();
+      }).then(function (obj){
+        updateChartData(phLineChart, obj['data'][0]['ph_level'])
+      }).catch(function (error){
+        console.log('Error when fetch api')
+      });
+  }, 1000)
+
+
+
+  function updateChartData(lineChart, value){
+      lineChart.data.datasets[0].data.pop();
+      lineChart.data.datasets[0].data.splice(0, 0, value);
+      lineChart.update();
+  }
+
   // PH Level Chart
   var ctx1 = document.getElementById("PHLevelChart");
-  var myLineChart = new Chart(ctx1, {
+  var phLineChart = new Chart(ctx1, {
     type: "line",
     data: {
       labels: [
@@ -268,7 +288,7 @@ endblock %} {% block content %}
 
   // Temperature Chart
   var ctx2 = document.getElementById("TemperatureChart");
-  var myLineChart = new Chart(ctx2, {
+  var tempLineChart = new Chart(ctx2, {
     type: "line",
     data: {
       labels: [
@@ -380,7 +400,7 @@ endblock %} {% block content %}
 
   // Humidity Chart
   var ctx3 = document.getElementById("HumidityChart");
-  var myLineChart = new Chart(ctx3, {
+  var humLineChart = new Chart(ctx3, {
     type: "line",
     data: {
       labels: [
@@ -492,7 +512,7 @@ endblock %} {% block content %}
 
   // Water Level Chart
   var ctx4 = document.getElementById("WaterLevelChart");
-  var myLineChart = new Chart(ctx4, {
+  var waterLineChart = new Chart(ctx4, {
     type: "line",
     data: {
       labels: [

@@ -1,0 +1,6 @@
+- IN PROGRESS: write api get hardware data:
+use same as /hardware-details
+
+- IN PROGRESS apply alpine js 
+
+- 

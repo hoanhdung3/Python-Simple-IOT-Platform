@@ -1,2 +1,6 @@
 - mysql host:
 dung / Dung@123
+
+
+- set interval for fetch api.
+- check curr id or curr log time is diff to api data?
