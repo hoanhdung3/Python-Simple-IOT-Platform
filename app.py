@@ -140,7 +140,7 @@ def hapususer(id_user):
 @app.route('/list-hardware', methods=["GET", "POST"])
 def listhardware():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM hardware")
+    cur.execute("SELECT * FROM hardware WHERE user=%s", [session['email']])
     rv = cur.fetchall()
     cur.close()
     return render_template("list-hardware.html", hardware=rv)
@@ -151,7 +151,7 @@ def addhardware():
     security_code = request.form['security_code']
     status = request.form['status']
     cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO hardware (name, security_code, status) VALUES (%s,%s,%s)",(name,security_code,status,))
+    cur.execute("INSERT INTO hardware (name, security_code, status, user) VALUES (%s,%s,%s,%s)",(name,security_code,status, session['email'],))
     mysql.connection.commit()
     return redirect(url_for('listhardware'))
 
@@ -238,13 +238,14 @@ def checkhardwarestatus(id_hardware):
 @app.route('/api/gethardwarelog/<string:id_hardware>', methods=["GET"])
 def gethardwarelog(id_hardware):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT ph_level, temperature, humidity, water_level, time \
+    cur.execute("SELECT id_hardware, ph_level, temperature, humidity, water_level, time \
                  FROM hardware_log \
                  WHERE id_hardware=%s \
                  order by id_hardware_log desc \
                  LIMIT 1", (id_hardware,))
     data = cur.fetchall()
     cur.close()
+    data[0]['time'] = str(data[0]['time'])
     return make_response(
     {
         'message':'Status hardware successfully fetched', 'code':'SUCCESS',

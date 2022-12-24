@@ -4,23 +4,22 @@ import requests
 import json
 import time
 
-#ID hardware & Securitu Code added and set from dashboard
-security_code = "kukuhgilahehe"
-id_hardware = 1
+security_code = "123"
+id_hardware = 2
 
 #Infinite looping (ctrl + C to stop the worker)
 while True:
     #URL of the api
-    url = "https://flaskiot.herokuapp.com/addhardwarelog"
+    url = "http://127.0.0.1:5000/addhardwarelog"
     body = {
-        "id_hardware":1,
+        "id_hardware":2,
         "security_code":security_code,
         "ph_level":15,
         "temperature":17,
         "humidity":23,
         "water_level":27,
         #Image must be a base64 or blob format
-        "image":"blob"
+        "image":"4"
     }
     response = requests.post(url, json=body)
     responsejson = json.loads(response.text)

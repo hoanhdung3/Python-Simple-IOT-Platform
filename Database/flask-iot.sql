@@ -31,7 +31,8 @@ CREATE TABLE `hardware` (
   `id_hardware` int(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `security_code` varchar(255) NOT NULL,
-  `status` int(255) NOT NULL
+  `status` int(255) NOT NULL,
+  'user' varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --

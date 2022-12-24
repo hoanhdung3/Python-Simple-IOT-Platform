@@ -4,3 +4,5 @@ dung / Dung@123
 
 - set interval for fetch api.
 - check curr id or curr log time is diff to api data?
+
+- make js array for logtime. set chart label to log time.

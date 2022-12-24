@@ -155,18 +155,55 @@ endblock %} {% block content %}
     return s.join(dec);
   }
 
+  function padTo2Digits(num) {
+  return num.toString().padStart(2, '0');
+}
+
+  function formatDate(date) {
+  return (
+    [
+      date.getFullYear(),
+      padTo2Digits(date.getMonth() + 1),
+      padTo2Digits(date.getDate()),
+    ].join('-') +
+    ' ' +
+    [
+      padTo2Digits(date.getHours()),
+      padTo2Digits(date.getMinutes()),
+      padTo2Digits(date.getSeconds()),
+    ].join(':')
+  );
+}
+
+var logTime = [
+          {% for row in hardware_log %}
+            '{{ row.time }}',
+          {% endfor %}
+          ];
+
   setInterval(() => {
       fetch('{{ getLogDataApiUrl }}')
       .then(function (response){
         return response.json();
       }).then(function (obj){
-        updateChartData(phLineChart, obj['data'][0]['ph_level'])
+        if(obj['data'][0]['time'] != logTime[0]){
+            updateChartData(phLineChart, obj['data'][0]['ph_level']);
+        updateChartData(humLineChart, obj['data'][0]['humidity']);
+        updateChartData(tempLineChart, obj['data'][0]['temperature']);
+        updateChartData(waterLineChart, obj['data'][0]['water_level']);
+        updateLogTime(logTime, obj['data'][0]['time']);
+        }
+
       }).catch(function (error){
         console.log('Error when fetch api')
       });
   }, 1000)
 
 
+  function updateLogTime(logTime, value){
+      logTime.pop();
+      logTime.splice(0, 0, value);
+  }
 
   function updateChartData(lineChart, value){
       lineChart.data.datasets[0].data.pop();
